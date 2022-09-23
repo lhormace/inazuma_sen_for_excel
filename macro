@@ -1,0 +1,56 @@
+Dim prev_shape
+
+Sub main()
+    Dim inazuma_kijun_cell As String
+    Dim kijun_bi As String
+    Dim jissai_bi As String
+    Dim wk1 As String
+    Dim wk2 As String
+    Dim wk3 As Integer
+    Dim i As Integer
+    Dim MaxRow As Integer
+        
+    'イナズマ線を書く時にオンスケとなる開始位置
+    inazuma_kijun_cell = "J2"
+    
+    'イナズマ線がオンスケと判断する日付
+    kijun_bi = "C3"
+    
+    '実際の進捗状況の日付
+    jissai_bi = "D3"
+        
+    prev_shape = inazuma_kijun_cell
+    MaxRow = Range(kijun_bi).End(xlDown).Row
+    
+    ' 基準日が正しく設定されていない場合、エクセルの有効範囲一杯にイナズマ線が描かれるのを防ぐ
+    If 1048576 = MaxRow Then
+      MsgBox ("基準日列が正しくありません。")
+      End
+    End If
+    
+    For i = 0 To MaxRow - Range(kijun_bi).Row
+        ' kijun_biとjissai_biを比較
+        wk1 = Cells(Range(kijun_bi).Row + i, Range(kijun_bi).Column)
+        wk2 = Cells(Range(jissai_bi).Row + i, Range(jissai_bi).Column)
+        wk3 = DateDiff("d", wk1, wk2)
+        Call put_inazuma(i, wk3, inazuma_kijun_cell)
+    Next
+    End
+
+End Sub
+
+
+Sub put_inazuma(p_i, p_diff, p_kijun)
+  Dim spahe_work As Object
+  shape_work = Cells(Range(p_kijun).Row + p_i + 1, Range(p_kijun).Column + p_diff).Address
+  ActiveSheet.Shapes.AddConnector _
+    msoConnectorStraight, _
+    Range(prev_shape).Left, _
+    Range(prev_shape).Top + 10, _
+    Range(shape_work).Left, _
+    Range(shape_work).Top + 10
+  
+    prev_shape = shape_work
+  
+End Sub
+
